@@ -8,15 +8,15 @@ do
 for pred_len in 96 192 336 720
 do
 
-python main.py \
-    --root_path ./datasets/weather/ \
+python3 main.py \
+    --root_path '~/Downloads/' \
     --data_path weather.csv \
     --model_id weather_$model'_'$gpt_layer'_'$seq_len'_'$pred_len'_'$percent \
     --data custom \
     --seq_len $seq_len \
     --label_len 48 \
     --pred_len $pred_len \
-    --batch_size 512 \
+    --batch_size 256 \
     --learning_rate 0.001 \
     --train_epochs 10 \
     --decay_fac 0.9 \
@@ -34,7 +34,8 @@ python main.py \
     --gpt_layer 6 \
     --itr 3 \
     --model $model \
-    --is_gpt 1
+    --is_gpt 1 \
+    --mode test
     
 done
 done

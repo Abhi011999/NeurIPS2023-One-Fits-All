@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from utils.timefeatures import time_features
 from utils.tools import convert_tsf_to_dataframe
 import warnings
@@ -244,6 +244,8 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
+        self.encoder = LabelEncoder()
+        categorical_cols = ['Summary', 'Precip Type', 'OT']
         df_raw = pd.read_csv(os.path.join(self.root_path,
                                           self.data_path))
 
@@ -251,10 +253,13 @@ class Dataset_Custom(Dataset):
         df_raw.columns: ['date', ...(other features), target feature]
         '''
         cols = list(df_raw.columns)
+        for col in categorical_cols:
+            if col in cols:
+                df_raw[col] = self.encoder.fit_transform(df_raw[col])
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        # print(cols)
+        # print(df_raw.head())
         num_train = int(len(df_raw) * 0.7)
         num_test = int(len(df_raw) * 0.2)
         num_vali = len(df_raw) - num_train - num_test
@@ -280,7 +285,7 @@ class Dataset_Custom(Dataset):
             data = df_data.values
 
         df_stamp = df_raw[['date']][border1:border2]
-        df_stamp['date'] = pd.to_datetime(df_stamp.date)
+        df_stamp['date'] = pd.to_datetime(df_stamp.date, utc=True)
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
