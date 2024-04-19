@@ -122,7 +122,7 @@ if __name__ == '__main__':
             args.freq = SEASONALITY_MAP[test_data.freq]
             print("freq = {}".format(args.freq))
 
-        device = torch.device('mps')
+        device = torch.device('cuda:0')
 
         time_now = time.time()
         train_steps = len(train_loader)
